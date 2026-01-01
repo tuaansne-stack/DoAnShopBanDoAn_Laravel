@@ -1,0 +1,24 @@
+/* Payment styles */
+.badge-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.badge-pending {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+#banking-info {
+  transition: all 0.3s ease;
+}
+
+#banking-info:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.bg-light.p-1 {
+  border-radius: 4px;
+  user-select: all;
+  cursor: copy;
+}
