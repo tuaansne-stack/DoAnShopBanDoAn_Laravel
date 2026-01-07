@@ -131,52 +131,166 @@ MyShop/
 
 ---
 
-## 6. Hướng Dẫn Cài Đặt
+## 6. Sơ Đồ Phân Rã Chức Năng
 
-### Bước 1: Clone dự án
-```bash
-git clone [repository-url] MyShop
-cd MyShop
+### 📱 6.1 Phân Hệ Khách Hàng (User)
+
+```mermaid
+graph TD
+    subgraph KHACHHANG["🛒 HỆ THỐNG KHÁCH HÀNG"]
+        A["👤 KHÁCH HÀNG"]
+        
+        subgraph AUTH["🔐 Xác thực"]
+            A1["Đăng ký"]
+            A2["Đăng nhập"]
+            A3["Đăng xuất"]
+            A4["Đổi mật khẩu"]
+        end
+        
+        subgraph PRODUCT["🍕 Sản phẩm"]
+            B1["Xem menu"]
+            B2["Tìm kiếm"]
+            B3["Lọc danh mục"]
+            B4["Xem chi tiết"]
+            B5["Chọn topping"]
+        end
+        
+        subgraph CART["🛒 Giỏ hàng"]
+            C1["Thêm sản phẩm"]
+            C2["Cập nhật số lượng"]
+            C3["Xóa sản phẩm"]
+            C4["Xem giỏ hàng"]
+        end
+        
+        subgraph ORDER["📦 Đơn hàng"]
+            D1["Checkout"]
+            D2["Chọn PTTT"]
+            D3["Chọn PTVC"]
+            D4["Xem đơn hàng"]
+            D5["Hủy đơn"]
+            D6["Đánh giá"]
+        end
+    end
+    
+    A --> AUTH
+    A --> PRODUCT
+    A --> CART
+    A --> ORDER
 ```
 
-### Bước 2: Cài đặt dependencies
-```bash
-composer install
-```
+### 🔧 6.2 Phân Hệ Quản Trị (Admin)
 
-### Bước 3: Cấu hình môi trường
-```bash
-cp .env.example .env
-php artisan key:generate
-```
-
-### Bước 4: Cấu hình database (file .env)
-```
-DB_DATABASE=food_shop
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-### Bước 5: Import database
-```bash
-# Import file food_shop.sql vào MySQL
-mysql -u root food_shop < food_shop.sql
-```
-
-### Bước 6: Chạy ứng dụng
-```bash
-php artisan serve
-# Hoặc truy cập: http://localhost/MyShop/public
+```mermaid
+graph TD
+    subgraph ADMIN["⚙️ HỆ THỐNG QUẢN TRỊ"]
+        AD["👨‍💼 ADMIN"]
+        
+        subgraph QL_SP["📦 Quản lý Sản phẩm"]
+            SP1["Thêm món ăn"]
+            SP2["Sửa món ăn"]
+            SP3["Xóa món ăn"]
+            SP4["Upload hình"]
+        end
+        
+        subgraph QL_DM["📂 Quản lý Danh mục"]
+            DM1["Thêm danh mục"]
+            DM2["Sửa danh mục"]
+            DM3["Xóa danh mục"]
+        end
+        
+        subgraph QL_DH["📋 Quản lý Đơn hàng"]
+            DH1["Xem danh sách"]
+            DH2["Cập nhật trạng thái"]
+            DH3["In đơn hàng"]
+            DH4["Xuất Excel"]
+        end
+        
+        subgraph QL_USER["👥 Quản lý User"]
+            US1["Xem danh sách"]
+            US2["Thêm user"]
+            US3["Phân quyền"]
+            US4["Khóa tài khoản"]
+        end
+        
+        subgraph THONGKE["📊 Báo cáo"]
+            TK1["Thống kê doanh thu"]
+            TK2["Thống kê đơn hàng"]
+            TK3["Biểu đồ"]
+        end
+    end
+    
+    AD --> QL_SP
+    AD --> QL_DM
+    AD --> QL_DH
+    AD --> QL_USER
+    AD --> THONGKE
 ```
 
 ---
 
-## 7. Tài Khoản Mặc Định
+## 7. Sơ Đồ Quan Hệ Thực Thể (ERD)
 
-| Vai trò | Email | Mật khẩu |
-|---------|-------|----------|
-| Admin | admin@example.com | 123456 |
-| Customer | user@example.com | 123456 |
+```mermaid
+erDiagram
+    USER ||--o{ GIOHANG : "có"
+    USER ||--o{ HOADON : "đặt"
+    USER ||--o{ BINHLUAN : "viết"
+    
+    DANHMUC ||--o{ MONAN : "chứa"
+    
+    MONAN ||--o{ PRODUCT_IMAGES : "có"
+    MONAN ||--o{ GIOHANG : "trong"
+    MONAN ||--o{ CHITIETHOADON : "trong"
+    MONAN ||--o{ BINHLUAN : "có"
+    MONAN }o--o{ TOPPING : "thêm"
+    
+    HOADON ||--o{ CHITIETHOADON : "gồm"
+    HOADON ||--o{ LICHSUDONHANG : "có"
+    HOADON }o--|| PHUONGTHUCTHANHTOAN : "dùng"
+    HOADON }o--|| PHUONGTHUCVANCHUYEN : "dùng"
+    
+    PHUONGTHUCTHANHTOAN ||--o{ THONGTINTHANHTOAN : "có"
+    
+    GIOHANG }o--o{ TOPPING : "chọn"
+    CHITIETHOADON }o--o{ TOPPING : "có"
+
+    USER {
+        bigint id PK
+        varchar hoten
+        varchar email
+        varchar password
+        tinyint is_admin
+    }
+    
+    MONAN {
+        bigint id PK
+        varchar tenmon
+        int gia
+        bigint danhmuc_id FK
+        boolean noibat
+    }
+    
+    HOADON {
+        bigint id PK
+        bigint user_id FK
+        decimal tongtien
+        enum trangthai
+        bigint pttt_id FK
+    }
+    
+    CHITIETHOADON {
+        bigint id PK
+        bigint hoadon_id FK
+        bigint monan_id FK
+        int soluong
+        decimal gia
+    }
+```
+
+> **Chú thích:**
+> - `||--o{` = Quan hệ **1:N** (One-to-Many)
+> - `}o--o{` = Quan hệ **N:N** (Many-to-Many)
+> - `PK` = Primary Key | `FK` = Foreign Key
 
 ---
 
@@ -223,3 +337,4 @@ Chi tiết xem file `Team_Assignment.md`
 ---
 
 📝 *Cập nhật: 07/01/2026*
+
