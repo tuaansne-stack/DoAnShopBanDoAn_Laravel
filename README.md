@@ -1,436 +1,225 @@
-<h1 align="center">🍜 MyShop - Hệ Thống Bán Đồ Ăn Online</h1>
+# 🍜 MYSHOP - HỆ THỐNG BÁN ĐỒ ĂN ONLINE
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Laravel-8.x-FF2D20?style=flat-square&logo=laravel" alt="Laravel">
-  <img src="https://img.shields.io/badge/PHP-7.3+-777BB4?style=flat-square&logo=php" alt="PHP">
-  <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL">
-  <img src="https://img.shields.io/badge/Bootstrap-5-7952B3?style=flat-square&logo=bootstrap" alt="Bootstrap">
-</p>
-
----
-
-## 📋 Mục Lục
-
-1. [Tổng Quan](#1-tổng-quan)
-2. [Chức Năng Hệ Thống](#2-chức-năng-hệ-thống)
-3. [Sơ Đồ Usecase](#3-sơ-đồ-usecase)
-4. [Thiết Kế CSDL](#4-thiết-kế-csdl)
-5. [Quan Hệ Giữa Các Bảng](#5-quan-hệ-giữa-các-bảng)
-6. [Sơ Đồ ERD](#6-sơ-đồ-erd)
-
----
-
-## 1. Tổng Quan
+## 1. Tổng Quan Dự Án
 
 | Thông tin | Chi tiết |
 |-----------|----------|
 | **Tên dự án** | MyShop - Food Ordering System |
 | **Mô tả** | Website đặt đồ ăn online với quản lý đơn hàng |
 | **Framework** | Laravel 8.x |
-| **Database** | MySQL (19 bảng) |
-| **Phân hệ** | Frontend (Khách hàng) + Backend (Admin) |
+| **Ngôn ngữ** | PHP 7.3+ |
+| **Database** | MySQL 5.7+ |
+| **Frontend** | Blade Template, Bootstrap 5, jQuery |
+| **Server** | Apache (XAMPP) |
 
 ---
 
-## 2. Chức Năng Hệ Thống
+## 2. Yêu Cầu Hệ Thống
 
-### 2.1 Phân Hệ Khách Hàng
-
-| Module | Chức năng |
-|--------|-----------|
-| **Xác thực** | Đăng ký, Đăng nhập, Đăng xuất |
-| **Sản phẩm** | Xem menu, Chi tiết món, Tìm kiếm, Chọn topping |
-| **Giỏ hàng** | Thêm/Xóa/Cập nhật sản phẩm |
-| **Đơn hàng** | Checkout, Xem đơn, Hủy đơn, Đặt lại |
-| **Đánh giá** | Viết bình luận, Đánh giá sao |
-| **Tài khoản** | Cập nhật profile, Đổi mật khẩu |
-| **Nội dung** | Xem tin tức, Giới thiệu, Liên hệ |
-
-### 2.2 Phân Hệ Quản Trị
-
-| Module | Chức năng |
-|--------|-----------|
-| **Dashboard** | Thống kê tổng quan, Biểu đồ doanh thu |
-| **Sản phẩm** | CRUD món ăn, Quản lý hình ảnh, Sản phẩm nổi bật |
-| **Danh mục** | CRUD danh mục |
-| **Topping** | CRUD topping |
-| **Đơn hàng** | Xem/Cập nhật trạng thái, In đơn, Xuất Excel |
-| **Người dùng** | CRUD users, Phân quyền (Admin/Staff/Customer) |
-| **Bình luận** | Duyệt/Ẩn/Xóa bình luận |
-| **Tin tức** | CRUD bài viết |
-| **Giới thiệu** | CRUD nội dung about |
-| **Cài đặt** | Logo, Thông tin shop, Mạng xã hội, PTTT, PTVC |
+| Thành phần | Yêu cầu |
+|------------|---------|
+| PHP | >= 7.3 |
+| MySQL | >= 5.7 |
+| Composer | >= 2.0 |
+| Web Server | Apache/Nginx |
+| Node.js | >= 14.x (tùy chọn) |
 
 ---
 
-## 3. Sơ Đồ Usecase
+## 3. Kiến Trúc Hệ Thống
 
-### 3.1 Tổng Quan Hệ Thống
+### 3.1 Kiến trúc 2 tầng (Client-Server)
 
-```mermaid
-flowchart LR
-    subgraph Actors
-        KH((Khách hàng))
-        AD((Admin))
-    end
-
-    subgraph UC_KH[Khách hàng]
-        UC1[Đăng ký/Đăng nhập]
-        UC2[Xem sản phẩm]
-        UC3[Quản lý giỏ hàng]
-        UC4[Đặt hàng]
-        UC5[Đánh giá sản phẩm]
-        UC6[Quản lý tài khoản]
-    end
-
-    subgraph UC_AD[Quản trị viên]
-        UC7[Quản lý sản phẩm]
-        UC8[Quản lý đơn hàng]
-        UC9[Quản lý người dùng]
-        UC10[Quản lý nội dung]
-        UC11[Xem báo cáo]
-        UC12[Cài đặt hệ thống]
-    end
-
-    KH --> UC1 & UC2 & UC3 & UC4 & UC5 & UC6
-    AD --> UC7 & UC8 & UC9 & UC10 & UC11 & UC12
 ```
-
-### 3.2 Quy Trình Đặt Hàng
-
-```mermaid
-flowchart LR
-    A[Xem menu] --> B[Chọn món]
-    B --> C[Thêm giỏ hàng]
-    C --> D[Checkout]
-    D --> E[Xác nhận đơn]
-    E --> F{Trạng thái}
-    F -->|Xác nhận| G[Đang giao]
-    G --> H[Hoàn tất]
-    F -->|Hủy| I[Đã hủy]
-    H --> J[Đánh giá]
+┌─────────────────────────────────────────────────────────────┐
+│                      CLIENT TIER                             │
+│           (Trình duyệt Web - Browser)                       │
+│                                                              │
+│   • Giao diện HTML/CSS/JavaScript                           │
+│   • Bootstrap 5 + jQuery                                     │
+│   • Gửi HTTP Request đến Server                             │
+└─────────────────────────────────────────────────────────────┘
+                              ↓ ↑
+                        HTTP Request/Response
+                              ↓ ↑
+┌─────────────────────────────────────────────────────────────┐
+│                      SERVER TIER                             │
+│              (Apache + PHP + MySQL)                          │
+│                                                              │
+│   • Laravel Framework (Controllers, Models, Views)          │
+│   • Xử lý logic nghiệp vụ                                   │
+│   • Truy xuất dữ liệu MySQL                                 │
+│   • Trả về HTML/JSON cho Client                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 4. Thiết Kế CSDL
+## 4. Cấu Trúc Thư Mục
 
-### 4.1 Danh Sách Bảng
-
-| STT | Tên bảng | Mô tả | Quan hệ chính |
-|:---:|----------|-------|---------------|
-| 1 | `user` | Người dùng | 1-N với giohang, hoadon, binhluan |
-| 2 | `danhmuc` | Danh mục | 1-N với monan |
-| 3 | `monan` | Sản phẩm | 1-N với images, N-N với topping |
-| 4 | `product_images` | Hình ảnh SP | N-1 với monan |
-| 5 | `topping` | Topping | N-N với monan, giohang, chitiethoadon |
-| 6 | `giohang` | Giỏ hàng | N-1 với user, monan |
-| 7 | `hoadon` | Đơn hàng | N-1 với user, 1-N với chitiethoadon |
-| 8 | `chitiethoadon` | Chi tiết đơn | N-1 với hoadon, monan |
-| 9 | `binhluan` | Bình luận | N-1 với user, monan |
-| 10 | `tintuc` | Tin tức | Độc lập |
-| 11 | `gioithieu` | Giới thiệu | Độc lập |
-| 12 | `quantri` | Cài đặt | Độc lập |
-| 13 | `phuongthucthanhtoan` | PTTT | 1-N với hoadon |
-| 14 | `phuongthucvanchuyen` | PTVC | 1-N với hoadon |
-| 15 | `thongtinthanhtoan` | Thông tin bank | N-1 với PTTT |
-| 16 | `lichsudonhang` | Lịch sử đơn | N-1 với hoadon |
-
-### 4.2 Cấu Trúc Bảng Chính
-
-#### Bảng `user`
-| Cột | Kiểu | Mô tả |
-|-----|------|-------|
-| id | BIGINT PK | ID người dùng |
-| hoten | VARCHAR(100) | Họ tên |
-| email | VARCHAR(100) | Email (unique) |
-| password | VARCHAR | Mật khẩu |
-| is_admin | TINYINT | 0=Khách, 1=Admin, 2=Staff |
-| trangthai | VARCHAR(50) | Hoạt động / Khóa |
-
-#### Bảng `monan`
-| Cột | Kiểu | Mô tả |
-|-----|------|-------|
-| id | BIGINT PK | ID sản phẩm |
-| tenmon | VARCHAR(100) | Tên món |
-| gia | INT | Giá hiện tại |
-| giacu | INT | Giá cũ |
-| danhmuc_id | BIGINT FK | ID danh mục |
-| trangthai | VARCHAR(50) | Đang bán / Hết hàng |
-| noibat | BOOLEAN | Sản phẩm nổi bật |
-
-#### Bảng `hoadon`
-| Cột | Kiểu | Mô tả |
-|-----|------|-------|
-| id | BIGINT PK | ID đơn hàng |
-| user_id | BIGINT FK | ID khách hàng |
-| tongtien | DECIMAL(12,2) | Tổng tiền |
-| diachi_giaohang | VARCHAR(255) | Địa chỉ giao |
-| trangthai | ENUM | Chờ xác nhận → Hoàn tất / Đã hủy |
-| pttt_id | BIGINT FK | Phương thức thanh toán |
-| ptvc_id | BIGINT FK | Phương thức vận chuyển |
-| dathanhtoan | BOOLEAN | Đã thanh toán |
-
-#### Bảng `chitiethoadon`
-| Cột | Kiểu | Mô tả |
-|-----|------|-------|
-| id | BIGINT PK | ID chi tiết |
-| hoadon_id | BIGINT FK | ID đơn hàng |
-| monan_id | BIGINT FK | ID sản phẩm |
-| soluong | INT | Số lượng |
-| gia | DECIMAL(10,2) | Đơn giá |
-
----
-
-## 5. Sơ Đồ Quan Hệ Giữa Các Bảng
-
-### 5.1 Sơ Đồ Quan Hệ (Crow's Foot Notation)
-
-```mermaid
-erDiagram
-    USER ||--o{ GIOHANG : "1:N có"
-    USER ||--o{ HOADON : "1:N đặt"
-    USER ||--o{ BINHLUAN : "1:N viết"
-
-    DANHMUC ||--o{ MONAN : "1:N chứa"
-
-    MONAN ||--o{ PRODUCT_IMAGES : "1:N có"
-    MONAN ||--o{ GIOHANG : "1:N trong"
-    MONAN ||--o{ CHITIETHOADON : "1:N trong"
-    MONAN ||--o{ BINHLUAN : "1:N có"
-    MONAN }o--o{ TOPPING : "N:N thêm"
-
-    HOADON ||--o{ CHITIETHOADON : "1:N gồm"
-    HOADON ||--o{ LICHSUDONHANG : "1:N có"
-
-    PHUONGTHUCTHANHTOAN ||--o{ HOADON : "1:N dùng"
-    PHUONGTHUCTHANHTOAN ||--o{ THONGTINTHANHTOAN : "1:N có"
-    PHUONGTHUCVANCHUYEN ||--o{ HOADON : "1:N dùng"
-
-    GIOHANG }o--o{ TOPPING : "N:N chọn"
-    CHITIETHOADON }o--o{ TOPPING : "N:N có"
 ```
-
-> **Chú thích ký hiệu:**
-> - `||--o{` = Quan hệ **1:N** (One-to-Many)
-> - `}o--o{` = Quan hệ **N:N** (Many-to-Many)
-
-### 5.2 Sơ Đồ Chi Tiết Theo Nhóm
-
-```mermaid
-erDiagram
-    %% === USER MODULE ===
-    USER {
-        bigint id PK
-        varchar hoten
-        varchar email UK
-        varchar password
-        tinyint is_admin
-    }
-
-    %% === PRODUCT MODULE ===
-    DANHMUC {
-        bigint id PK
-        varchar ten_danhmuc
-    }
-
-    MONAN {
-        bigint id PK
-        varchar tenmon
-        int gia
-        bigint danhmuc_id FK
-        boolean noibat
-    }
-
-    TOPPING {
-        bigint id PK
-        varchar tentopping
-        decimal gia
-    }
-
-    %% === ORDER MODULE ===
-    GIOHANG {
-        bigint id PK
-        bigint user_id FK
-        bigint monan_id FK
-        int soluong
-    }
-
-    HOADON {
-        bigint id PK
-        bigint user_id FK
-        decimal tongtien
-        enum trangthai
-        bigint pttt_id FK
-        bigint ptvc_id FK
-    }
-
-    CHITIETHOADON {
-        bigint id PK
-        bigint hoadon_id FK
-        bigint monan_id FK
-        int soluong
-        decimal gia
-    }
-
-    %% === RELATIONSHIPS ===
-    USER ||--o{ GIOHANG : "has"
-    USER ||--o{ HOADON : "places"
-    DANHMUC ||--o{ MONAN : "contains"
-    MONAN ||--o{ GIOHANG : "in"
-    MONAN ||--o{ CHITIETHOADON : "ordered"
-    MONAN }o--o{ TOPPING : "has"
-    HOADON ||--o{ CHITIETHOADON : "includes"
-    GIOHANG }o--o{ TOPPING : "selects"
-    CHITIETHOADON }o--o{ TOPPING : "with"
+MyShop/
+├── app/                        # Code ứng dụng
+│   ├── Http/Controllers/       # Controllers xử lý request
+│   │   ├── Admin/             # Controllers trang Admin
+│   │   ├── AuthController.php
+│   │   ├── CartController.php
+│   │   ├── HomeController.php
+│   │   ├── OrderController.php
+│   │   ├── ProductController.php
+│   │   └── ProfileController.php
+│   ├── Models/                 # Eloquent Models (19 models)
+│   │   ├── User.php, Product.php, Order.php, Cart.php...
+│   ├── Services/              # Business Logic Services
+│   └── Helpers/               # Helper functions
+│
+├── config/                     # Cấu hình ứng dụng
+├── database/
+│   ├── migrations/            # File tạo cấu trúc bảng
+│   └── seeders/               # Dữ liệu mẫu
+│
+├── public/                     # Thư mục public
+│   ├── assets/                # CSS, JS, Images
+│   └── uploads/               # Hình ảnh upload
+│
+├── resources/views/            # Giao diện Blade
+│   ├── layouts/               # Layout chính
+│   ├── admin/                 # Views trang Admin
+│   ├── auth/                  # Đăng nhập, Đăng ký
+│   ├── cart/                  # Giỏ hàng
+│   ├── orders/                # Đơn hàng
+│   ├── products/              # Sản phẩm
+│   └── home.blade.php         # Trang chủ
+│
+├── routes/
+│   ├── web.php                # Route Frontend
+│   └── admin.php              # Route Admin
+│
+└── storage/                    # File lưu trữ, logs
 ```
 
 ---
 
-## 6. Sơ Đồ ERD
+## 5. Chức Năng Hệ Thống
 
-### 6.1 Sơ Đồ Quan Hệ Tổng Thể
+### 5.1 Phân Hệ Khách Hàng (Frontend)
 
-```mermaid
-erDiagram
-    user ||--o{ giohang : "1:N"
-    user ||--o{ hoadon : "1:N"
-    user ||--o{ binhluan : "1:N"
+| STT | Chức năng | Mô tả |
+|:---:|-----------|-------|
+| 1 | Đăng ký/Đăng nhập | Tạo tài khoản, xác thực người dùng |
+| 2 | Xem sản phẩm | Duyệt menu, tìm kiếm, lọc theo danh mục |
+| 3 | Chi tiết sản phẩm | Xem thông tin, hình ảnh, chọn topping |
+| 4 | Giỏ hàng | Thêm, sửa, xóa sản phẩm |
+| 5 | Đặt hàng | Checkout, chọn PTTT/PTVC |
+| 6 | Quản lý đơn | Xem lịch sử, hủy đơn, đặt lại |
+| 7 | Đánh giá | Viết bình luận, đánh giá sao |
+| 8 | Tài khoản | Cập nhật thông tin, đổi mật khẩu |
 
-    danhmuc ||--o{ monan : "1:N"
+### 5.2 Phân Hệ Quản Trị (Backend)
 
-    monan ||--o{ product_images : "1:N"
-    monan ||--o{ giohang : "1:N"
-    monan ||--o{ chitiethoadon : "1:N"
-    monan ||--o{ binhluan : "1:N"
-    monan }o--o{ topping : "N:N"
+| STT | Chức năng | Mô tả |
+|:---:|-----------|-------|
+| 1 | Dashboard | Thống kê doanh thu, biểu đồ |
+| 2 | Sản phẩm | CRUD món ăn, upload hình ảnh |
+| 3 | Danh mục | CRUD danh mục sản phẩm |
+| 4 | Topping | CRUD topping |
+| 5 | Đơn hàng | Xem, cập nhật trạng thái, in đơn |
+| 6 | Người dùng | CRUD users, phân quyền |
+| 7 | Bình luận | Duyệt, ẩn, xóa bình luận |
+| 8 | Tin tức | CRUD bài viết |
+| 9 | Cài đặt | Logo, thông tin shop, PTTT, PTVC |
 
-    hoadon ||--o{ chitiethoadon : "1:N"
-    hoadon ||--o{ lichsudonhang : "1:N"
-    hoadon }o--|| phuongthucthanhtoan : "N:1"
-    hoadon }o--|| phuongthucvanchuyen : "N:1"
+---
 
-    phuongthucthanhtoan ||--o{ thongtinthanhtoan : "1:N"
+## 6. Hướng Dẫn Cài Đặt
 
-    giohang }o--o{ topping : "N:N"
-    chitiethoadon }o--o{ topping : "N:N"
-
-    user {
-        bigint id PK
-        string hoten
-        string email
-        string password
-        int is_admin
-    }
-
-    danhmuc {
-        bigint id PK
-        string ten_danhmuc
-    }
-
-    monan {
-        bigint id PK
-        string tenmon
-        int gia
-        bigint danhmuc_id FK
-    }
-
-    hoadon {
-        bigint id PK
-        bigint user_id FK
-        decimal tongtien
-        enum trangthai
-        bigint pttt_id FK
-        bigint ptvc_id FK
-    }
-
-    chitiethoadon {
-        bigint id PK
-        bigint hoadon_id FK
-        bigint monan_id FK
-        int soluong
-    }
-
-    binhluan {
-        bigint id PK
-        bigint monan_id FK
-        bigint user_id FK
-        int danhgia
-    }
-
-    topping {
-        bigint id PK
-        string tentopping
-        decimal gia
-    }
+### Bước 1: Clone dự án
+```bash
+git clone [repository-url] MyShop
+cd MyShop
 ```
 
-### 6.2 Sơ Đồ Nhóm Theo Module
+### Bước 2: Cài đặt dependencies
+```bash
+composer install
+```
 
-```mermaid
-graph TB
-    subgraph USER["👤 User Module"]
-        A[user]
-    end
+### Bước 3: Cấu hình môi trường
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-    subgraph PRODUCT["🍕 Product Module"]
-        B[danhmuc]
-        C[monan]
-        D[product_images]
-        E[topping]
-    end
+### Bước 4: Cấu hình database (file .env)
+```
+DB_DATABASE=food_shop
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-    subgraph ORDER["📦 Order Module"]
-        F[giohang]
-        G[hoadon]
-        H[chitiethoadon]
-        I[lichsudonhang]
-    end
+### Bước 5: Import database
+```bash
+# Import file food_shop.sql vào MySQL
+mysql -u root food_shop < food_shop.sql
+```
 
-    subgraph PAYMENT["💳 Payment Module"]
-        J[phuongthucthanhtoan]
-        K[phuongthucvanchuyen]
-        L[thongtinthanhtoan]
-    end
-
-    subgraph CONTENT["📰 Content Module"]
-        M[binhluan]
-        N[tintuc]
-        O[gioithieu]
-        P[quantri]
-    end
-
-    A -->|1:N| F
-    A -->|1:N| G
-    A -->|1:N| M
-
-    B -->|1:N| C
-    C -->|1:N| D
-    C -->|N:N| E
-    C -->|1:N| F
-    C -->|1:N| H
-    C -->|1:N| M
-
-    G -->|1:N| H
-    G -->|1:N| I
-    G -->|N:1| J
-    G -->|N:1| K
-
-    J -->|1:N| L
+### Bước 6: Chạy ứng dụng
+```bash
+php artisan serve
+# Hoặc truy cập: http://localhost/MyShop/public
 ```
 
 ---
 
-## 7. Công Nghệ
+## 7. Tài Khoản Mặc Định
 
-| Thành phần | Công nghệ |
-|------------|-----------|
-| Backend | Laravel 8, PHP 7.3+ |
-| Database | MySQL 5.7+ |
-| Frontend | Blade, Bootstrap 5 |
-| Charts | Chart.js |
-| Server | Apache (XAMPP) |
+| Vai trò | Email | Mật khẩu |
+|---------|-------|----------|
+| Admin | admin@example.com | 123456 |
+| Customer | user@example.com | 123456 |
 
 ---
 
-<p align="center"><em>📝 Tài liệu cập nhật: 01/01/2026</em></p>
+## 8. Database
+
+Hệ thống gồm **20 bảng** - Chi tiết xem file `database_documentation.md`
+
+| STT | Tên bảng | Mô tả |
+|:---:|----------|-------|
+| 1 | user | Người dùng |
+| 2 | danhmuc | Danh mục |
+| 3 | monan | Sản phẩm (món ăn) |
+| 4 | product_images | Hình ảnh sản phẩm |
+| 5 | topping | Topping |
+| 6 | monan_topping | Liên kết món-topping |
+| 7 | giohang | Giỏ hàng |
+| 8 | giohang_topping | Topping trong giỏ |
+| 9 | hoadon | Đơn hàng |
+| 10 | chitiethoadon | Chi tiết đơn hàng |
+| 11 | chitiethoadon_topping | Topping trong chi tiết |
+| 12 | phuongthucthanhtoan | Phương thức thanh toán |
+| 13 | phuongthucvanchuyen | Phương thức vận chuyển |
+| 14 | thongtinthanhtoan | Thông tin ngân hàng |
+| 15 | binhluan | Bình luận/đánh giá |
+| 16 | tintuc | Tin tức |
+| 17 | gioithieu | Giới thiệu |
+| 18 | quantri | Cài đặt hệ thống |
+| 19 | lichsudonhang | Lịch sử đơn hàng |
+| 20 | thongke_doanhthu | Thống kê doanh thu |
+
+---
+
+## 9. Phân Công Nhóm
+
+Chi tiết xem file `Team_Assignment.md`
+
+| Thành viên | Phụ trách |
+|:----------:|-----------|
+| TV1 | Xác thực, User, Cài đặt |
+| TV2 | Sản phẩm, Danh mục, Topping |
+| TV3 | Giỏ hàng, Đơn hàng, Giao diện, Database |
+| TV4 | Bình luận, Tin tức, Báo cáo |
+
+---
+
+📝 *Cập nhật: 07/01/2026*
