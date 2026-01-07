@@ -32,20 +32,20 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      CLIENT TIER                             │
+│                      CLIENT TIER                            │
 │           (Trình duyệt Web - Browser)                       │
-│                                                              │
+│                                                             │
 │   • Giao diện HTML/CSS/JavaScript                           │
-│   • Bootstrap 5 + jQuery                                     │
+│   • Bootstrap 5 + jQuery                                    │
 │   • Gửi HTTP Request đến Server                             │
 └─────────────────────────────────────────────────────────────┘
                               ↓ ↑
                         HTTP Request/Response
                               ↓ ↑
 ┌─────────────────────────────────────────────────────────────┐
-│                      SERVER TIER                             │
-│              (Apache + PHP + MySQL)                          │
-│                                                              │
+│                      SERVER TIER                            │
+│              (Apache + PHP + MySQL)                         │
+│                                                             │
 │   • Laravel Framework (Controllers, Models, Views)          │
 │   • Xử lý logic nghiệp vụ                                   │
 │   • Truy xuất dữ liệu MySQL                                 │
