@@ -67,17 +67,20 @@ resources/views/
 ├── admin/
 │   ├── users/
 │   │   ├── index.blade.php         ← Danh sách user
-│   │   └── form.blade.php          ← Form thêm/sửa user
+│   │   └── edit.blade.php          ← Form sửa user
 │   └── settings/
 │       └── index.blade.php         ← Trang cài đặt
 
 routes/
 ├── web.php                         ← Route đăng ký/đăng nhập/profile (dòng 47-83)
-└── admin.php                       ← Route admin users/settings (dòng 51-80)
+└── admin.php                       ← Route admin users/settings (dòng 52-80)
 
 database/migrations/
-├── 2024_01_01_000000_modify_users_table.php   ← Cấu trúc bảng user
-└── 2024_01_01_000002_create_quantri_table.php ← Cấu trúc bảng cài đặt
+├── 2014_10_12_000000_create_users_table.php     ← Bảng users mặc định Laravel
+├── 2024_01_01_000000_modify_users_table.php     ← Thêm cột cho bảng user
+├── 2024_01_01_000002_create_quantri_table.php   ← Bảng cài đặt website
+├── 2025_12_30_091612_add_remember_token_to_user_table.php ← Thêm remember token
+└── 2025_12_30_185000_update_quantri_social_links.php      ← Cập nhật social links
 ```
 
 ---
@@ -132,7 +135,7 @@ Redirect → Trang chủ hoặc trang trước đó
 ```
 [Admin] → GET /admin/users
         ↓
-routes/admin.php (dòng 52)
+routes/admin.php (dòng 52, Route::resource)
         ↓
 Admin\UserController@index
         ↓
@@ -249,7 +252,7 @@ Admin\SettingController@updateLogo
 ```
 app/
 ├── Http/Controllers/
-│   ├── HomeController.php          ← Trang chủ
+│   ├── HomeController.php          ← Trang chủ (hiển thị SP nổi bật)
 │   ├── ProductController.php       ← Menu + Chi tiết SP (Frontend)
 │   └── SearchController.php        ← Tìm kiếm
 ├── Http/Controllers/Admin/
@@ -271,24 +274,29 @@ resources/views/
 ├── admin/
 │   ├── categories/
 │   │   ├── index.blade.php         ← Danh sách danh mục
-│   │   └── form.blade.php          ← Form thêm/sửa
+│   │   ├── create.blade.php        ← Form thêm mới
+│   │   ├── edit.blade.php          ← Form sửa
+│   │   └── show.blade.php          ← Xem chi tiết
 │   ├── products/
 │   │   ├── index.blade.php         ← Danh sách sản phẩm
-│   │   └── form.blade.php          ← Form thêm/sửa (upload hình)
+│   │   └── edit.blade.php          ← Form thêm/sửa (upload hình)
 │   └── toppings/
 │       ├── index.blade.php         ← Danh sách topping
-│       └── form.blade.php          ← Form thêm/sửa
+│       ├── create.blade.php        ← Form thêm mới
+│       └── edit.blade.php          ← Form sửa
 
 routes/
-├── web.php                         ← Route menu, product (dòng 26-45)
-└── admin.php                       ← Route admin products/categories/toppings (dòng 36-65)
+├── web.php                         ← Route menu, product, search (dòng 27-45)
+└── admin.php                       ← Route admin products/categories/toppings (dòng 37-65)
 
 database/migrations/
-├── 2024_01_01_000001_create_danhmuc_table.php
-├── 2024_01_01_000005_create_monan_table.php
-├── 2025_12_27_000001_create_product_images_table.php
-├── 2025_12_30_110639_create_topping_table.php
-└── 2025_12_30_110718_create_monan_topping_table.php
+├── 2024_01_01_000001_create_danhmuc_table.php          ← Bảng danh mục
+├── 2024_01_01_000005_create_monan_table.php            ← Bảng sản phẩm
+├── 2025_12_27_000001_create_product_images_table.php   ← Bảng hình ảnh SP
+├── 2025_12_30_085018_remove_hinhanh_from_danhmuc_table.php ← Xóa cột hình danh mục
+├── 2025_12_30_110639_create_topping_table.php          ← Bảng topping
+├── 2025_12_30_110718_create_monan_topping_table.php    ← Bảng liên kết SP-Topping
+└── 2025_12_31_012437_drop_hinhanh_from_monan_table.php ← Xóa cột hình monan
 ```
 
 ---
@@ -339,7 +347,7 @@ views/products/show.blade.php
         ↓
 Admin\ProductController@create
         ↓
-views/admin/products/form.blade.php
+views/admin/products/edit.blade.php
         ↓
 [Nhập thông tin + upload hình] → POST /admin/products
         ↓
@@ -493,19 +501,35 @@ public/
 #### C. Phần Database:
 ```
 database/
-├── migrations/                     ← TẤT CẢ file migration
-│   ├── 2024_01_01_000000_modify_users_table.php
-│   ├── 2024_01_01_000001_create_danhmuc_table.php
-│   ├── 2024_01_01_000002_create_quantri_table.php
-│   ├── 2024_01_01_000003_create_phuongthucthanhtoan_table.php
-│   ├── 2024_01_01_000004_create_phuongthucvanchuyen_table.php
-│   ├── 2024_01_01_000005_create_monan_table.php
-│   ├── 2024_01_01_000006_create_giohang_table.php
-│   ├── 2024_01_01_000007_create_hoadon_table.php
-│   ├── 2024_01_01_000008_create_chitiethoadon_table.php
-│   ├── 2024_01_01_000009_create_binhluan_table.php
-│   ├── 2024_01_01_000010_create_tintuc_table.php
-│   └── ... (tất cả migrations)
+├── migrations/                     ← TẤT CẢ 28 file migration
+│   ├── 2014_10_12_000000_create_users_table.php        ← Bảng users Laravel
+│   ├── 2024_01_01_000000_modify_users_table.php        ← Sửa bảng user
+│   ├── 2024_01_01_000001_create_danhmuc_table.php       ← Bảng danh mục
+│   ├── 2024_01_01_000002_create_quantri_table.php       ← Bảng cài đặt
+│   ├── 2024_01_01_000003_create_phuongthucthanhtoan_table.php ← PTTT
+│   ├── 2024_01_01_000004_create_phuongthucvanchuyen_table.php ← PTVC
+│   ├── 2024_01_01_000005_create_monan_table.php         ← Bảng sản phẩm
+│   ├── 2024_01_01_000006_create_giohang_table.php       ← Bảng giỏ hàng
+│   ├── 2024_01_01_000007_create_hoadon_table.php        ← Bảng đơn hàng
+│   ├── 2024_01_01_000008_create_chitiethoadon_table.php ← Chi tiết đơn
+│   ├── 2024_01_01_000009_create_binhluan_table.php      ← Bình luận
+│   ├── 2024_01_01_000010_create_tintuc_table.php        ← Tin tức
+│   ├── 2024_01_01_000011_create_gioithieu_table.php     ← Giới thiệu
+│   ├── 2024_01_01_000012_create_thongtinthanhtoan_table.php ← Ngân hàng
+│   ├── 2024_01_01_000013_create_lichsudonhang_table.php ← Lịch sử đơn
+│   ├── 2024_01_01_000014_create_thongke_doanhthu_table.php ← Thống kê
+│   ├── 2024_12_31_000001_add_noibat_to_tintuc_table.php ← Tin nổi bật
+│   ├── 2025_12_07_191502_add_hoadon_id_to_binhluan_table.php ← Liên kết bình luận-đơn
+│   ├── 2025_12_27_000001_create_product_images_table.php ← Hình SP
+│   ├── 2025_12_30_085018_remove_hinhanh_from_danhmuc_table.php
+│   ├── 2025_12_30_091612_add_remember_token_to_user_table.php
+│   ├── 2025_12_30_110639_create_topping_table.php       ← Bảng topping
+│   ├── 2025_12_30_110718_create_monan_topping_table.php ← SP-Topping
+│   ├── 2025_12_30_110735_create_chitiethoadon_topping_table.php ← Đơn-Topping
+│   ├── 2025_12_30_120554_create_giohang_topping_table.php ← Giỏ-Topping
+│   ├── 2025_12_30_185000_update_quantri_social_links.php
+│   ├── 2025_12_30_185830_add_tiktok_to_quantri.php
+│   └── 2025_12_31_012437_drop_hinhanh_from_monan_table.php
 ├── seeders/                        ← Dữ liệu mẫu
 │   └── DatabaseSeeder.php
 ```
@@ -970,7 +994,7 @@ public function toppings()
 → Bảng trung gian: monan_topping
 ```
 
-#### D. Danh sách 19 bảng và quan hệ
+#### D. Danh sách 20 bảng và quan hệ
 
 | STT | Bảng | Mô tả | Quan hệ |
 |:---:|------|-------|---------|
@@ -980,19 +1004,20 @@ public function toppings()
 | 4 | `product_images` | Hình SP | N:1 → monan |
 | 5 | `topping` | Topping | N:N ↔ monan, giohang, chitiethoadon |
 | 6 | `giohang` | Giỏ hàng | N:1 → user, monan |
-| 7 | `hoadon` | Đơn hàng | N:1 → user, PTTT, PTVC |
-| 8 | `chitiethoadon` | Chi tiết đơn | N:1 → hoadon, monan |
-| 9 | `binhluan` | Bình luận | N:1 → user, monan |
-| 10 | `tintuc` | Tin tức | Độc lập |
-| 11 | `gioithieu` | Giới thiệu | Độc lập |
-| 12 | `quantri` | Cài đặt | Độc lập |
-| 13 | `phuongthucthanhtoan` | PTTT | 1:N → hoadon |
-| 14 | `phuongthucvanchuyen` | PTVC | 1:N → hoadon |
-| 15 | `thongtinthanhtoan` | Bank info | N:1 → PTTT |
-| 16 | `lichsudonhang` | Lịch sử đơn | N:1 → hoadon |
-| 17 | `monan_topping` | Liên kết | Bảng trung gian N:N |
-| 18 | `giohang_topping` | Liên kết | Bảng trung gian N:N |
-| 19 | `chitiethoadon_topping` | Liên kết | Bảng trung gian N:N |
+| 7 | `giohang_topping` | Topping giỏ | Bảng trung gian N:N |
+| 8 | `hoadon` | Đơn hàng | N:1 → user, PTTT, PTVC |
+| 9 | `chitiethoadon` | Chi tiết đơn | N:1 → hoadon, monan |
+| 10 | `chitiethoadon_topping` | Topping đơn | Bảng trung gian N:N |
+| 11 | `binhluan` | Bình luận | N:1 → user, monan, hoadon |
+| 12 | `tintuc` | Tin tức | Độc lập |
+| 13 | `gioithieu` | Giới thiệu | Độc lập |
+| 14 | `quantri` | Cài đặt | Độc lập |
+| 15 | `phuongthucthanhtoan` | PTTT | 1:N → hoadon |
+| 16 | `phuongthucvanchuyen` | PTVC | 1:N → hoadon |
+| 17 | `thongtinthanhtoan` | Bank info | N:1 → PTTT |
+| 18 | `lichsudonhang` | Lịch sử đơn | N:1 → hoadon |
+| 19 | `thongke_doanhthu` | Thống kê | Table thống kê doanh thu |
+| 20 | `monan_topping` | Liên kết | Bảng trung gian N:N |
 
 ---
 
@@ -1044,21 +1069,24 @@ resources/views/
 │   │   └── index.blade.php         ← Quản lý bình luận
 │   ├── news/
 │   │   ├── index.blade.php         ← Danh sách tin
-│   │   └── form.blade.php          ← Form thêm/sửa tin
+│   │   └── edit.blade.php          ← Form sửa tin
 │   ├── about/
-│   │   ├── index.blade.php
-│   │   └── form.blade.php
+│   │   ├── index.blade.php         ← Danh sách giới thiệu
+│   │   └── edit.blade.php          ← Form sửa
 │   └── reports/
 │       └── index.blade.php         ← Báo cáo doanh thu
 
 routes/
 ├── web.php                         ← Route news, about, contact, comments (dòng 33-76)
-└── admin.php                       ← Route admin comments, news, about, reports (dòng 55-71)
+└── admin.php                       ← Route admin comments, news, about, reports (dòng 56-71)
 
 database/migrations/
-├── 2024_01_01_000009_create_binhluan_table.php
-├── 2024_01_01_000010_create_tintuc_table.php
-└── 2024_01_01_000011_create_gioithieu_table.php
+├── 2024_01_01_000009_create_binhluan_table.php         ← Bảng bình luận
+├── 2024_01_01_000010_create_tintuc_table.php           ← Bảng tin tức
+├── 2024_01_01_000011_create_gioithieu_table.php        ← Bảng giới thiệu
+├── 2024_01_01_000014_create_thongke_doanhthu_table.php ← Bảng thống kê
+├── 2024_12_31_000001_add_noibat_to_tintuc_table.php    ← Thêm cột nổi bật
+└── 2025_12_07_191502_add_hoadon_id_to_binhluan_table.php ← Liên kết bình luận-đơn hàng
 ```
 
 ---
@@ -1283,4 +1311,4 @@ views/admin/reports/index.blade.php
 
 ---
 
-<p align="center"><em>📝 Tài liệu phân công nhóm - Cập nhật: 01/01/2026</em></p>
+<p align="center"><em>📝 Tài liệu phân công nhóm - Cập nhật: 10/01/2026</em></p>
